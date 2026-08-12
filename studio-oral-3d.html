@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Oral 3D — Imágenes Diagnósticas Orales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A111D;
+    --bg-panel:#0F1A2B;
+    --bg-panel-2:#132239;
+    --lightbox:#EAF5FC;
+    --cyan:#5FD6E8;
+    --cyan-dim:#2E7383;
+    --cyan-soft:rgba(95,214,232,0.14);
+    --amber:#E7A73E;
+    --text:#DCE8F2;
+    --text-dim:#7E92AA;
+    --line:rgba(220,232,242,0.10);
+    --line-strong:rgba(220,232,242,0.18);
+    --radius:10px;
+    --display:'Space Grotesk',sans-serif;
+    --body:'IBM Plex Sans',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+  img,svg{display:block;max-width:100%;}
+  ul{list-style:none;}
+  section{position:relative;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+  ::selection{background:var(--cyan);color:#04121a;}
+
+  /* -------- film sprocket strip -------- */
+  .filmstrip{display:flex;gap:10px;align-items:center;overflow:hidden;height:10px;}
+  .filmstrip span{
+    width:6px;height:6px;min-width:6px;border-radius:1px;
+    background:var(--line-strong);
+  }
+
+  /* -------- nav -------- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(10,17,29,0.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 28px;max-width:1180px;margin:0 auto;
+  }
+  .brand{
+    font-family:var(--display);font-weight:700;font-size:1.15rem;
+    letter-spacing:0.02em;display:flex;align-items:center;gap:10px;
+  }
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
+  .brand small{font-family:var(--mono);font-weight:400;color:var(--text-dim);font-size:0.62rem;letter-spacing:0.14em;display:block;margin-top:2px;}
+  nav.links{display:flex;gap:34px;align-items:center;}
+  nav.links a{font-size:0.86rem;color:var(--text-dim);transition:color .2s;}
+  nav.links a:hover{color:var(--cyan);}
+  .nav-cta{
+    display:flex;align-items:center;gap:14px;
+  }
+  .btn{
+    font-family:var(--mono);font-size:0.78rem;letter-spacing:0.02em;
+    padding:10px 18px;border-radius:6px;border:1px solid var(--line-strong);
+    display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+    transition:all .2s;
+  }
+  .btn-primary{background:var(--cyan);color:#04121a;border-color:var(--cyan);font-weight:600;}
+  .btn-primary:hover{background:#7EE2F0;}
+  .btn-ghost{color:var(--text);}
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+  .menu-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.4rem;cursor:pointer;}
+
+  /* -------- hero -------- */
+  .hero{padding:150px 0 60px;}
+  .hero-top-strip{margin-bottom:26px;}
+  .eyebrow{
+    font-family:var(--mono);font-size:0.72rem;color:var(--cyan);
+    letter-spacing:0.18em;text-transform:uppercase;margin-bottom:18px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .eyebrow::before{content:'';width:22px;height:1px;background:var(--cyan);}
+
+  .lightbox-panel{
+    position:relative;
+    background:radial-gradient(120% 140% at 50% 30%, #0E2130 0%, #060B12 70%);
+    border:1px solid var(--line-strong);
+    border-radius:14px;
+    padding:20px 20px 0;
+    overflow:hidden;
+  }
+  .lightbox-panel .strip-top, .lightbox-panel .strip-bottom{padding:0 6px;}
+  .lightbox-panel .strip-bottom{margin-top:18px;}
+  .lightbox-inner{
+    position:relative;
+    min-height:420px;
+    display:flex;align-items:center;justify-content:center;
+    padding:30px 10px;
+  }
+  .tag-corner{
+    position:absolute;font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);
+    letter-spacing:0.06em;
+  }
+  .tag-tl{top:14px;left:4px;}
+  .tag-tr{top:14px;right:4px;text-align:right;}
+  .side-marker{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:30px;height:30px;border:1px solid var(--cyan-dim);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:600;color:var(--cyan);font-size:0.8rem;
+    background:rgba(95,214,232,0.06);
+  }
+  .marker-l{left:6px;}
+  .marker-r{right:6px;}
+  #archSvg{width:min(720px,92%);height:auto;filter:drop-shadow(0 0 18px rgba(95,214,232,0.28));}
+
+  .hero-caption{
+    padding:26px 10px 30px;
+    display:flex;flex-wrap:wrap;gap:30px;justify-content:space-between;align-items:flex-end;
+    border-top:1px solid var(--line);
+  }
+  .hero-caption h1{
+    font-family:var(--display);font-weight:600;
+    font-size:clamp(1.7rem,3.4vw,2.7rem);
+    line-height:1.12;max-width:620px;letter-spacing:-0.01em;
+  }
+  .hero-caption h1 em{font-style:normal;color:var(--cyan);}
+  .hero-caption p{color:var(--text-dim);max-width:420px;margin-top:14px;font-size:0.95rem;}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+
+  /* trust strip */
+  .trust{padding:50px 0;border-bottom:1px solid var(--line);border-top:1px solid var(--line);}
+  .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;}
+  .trust-item{display:flex;gap:14px;align-items:flex-start;}
+  .trust-item svg{flex-shrink:0;color:var(--cyan);margin-top:2px;}
+  .trust-item h3{font-family:var(--mono);font-size:0.95rem;color:var(--text);font-weight:600;}
+  .trust-item p{color:var(--text-dim);font-size:0.84rem;margin-top:4px;}
+
+  /* section heads */
+  .section-head{padding:70px 0 40px;}
+  .section-head .eyebrow{margin-bottom:14px;}
+  .section-head h2{
+    font-family:var(--display);font-size:clamp(1.6rem,3vw,2.3rem);font-weight:600;letter-spacing:-0.01em;
+    max-width:620px;
+  }
+  .section-head p{color:var(--text-dim);max-width:520px;margin-top:12px;font-size:0.95rem;}
+
+  /* services */
+  .services{padding-bottom:30px;}
+  .service-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  }
+  .service-card{
+    background:var(--bg-panel);padding:28px 24px;min-height:190px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    transition:background .25s;
+  }
+  .service-card:hover{background:var(--bg-panel-2);}
+  .service-icon{width:34px;height:34px;color:var(--cyan);margin-bottom:20px;}
+  .service-card h3{font-family:var(--display);font-weight:600;font-size:1rem;margin-bottom:6px;}
+  .service-card p{color:var(--text-dim);font-size:0.82rem;}
+  .service-code{
+    font-family:var(--mono);font-size:0.66rem;color:var(--cyan-dim);letter-spacing:0.1em;
+    margin-top:16px;
+  }
+
+  /* gallery */
+  .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .gcard{
+    background:var(--bg-panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .gcard .gvis{
+    position:relative;height:200px;background:radial-gradient(120% 140% at 50% 20%, #0E2130 0%, #060B12 75%);
+    display:flex;align-items:center;justify-content:center;padding:18px;
+    border-bottom:1px solid var(--line);
+  }
+  .gcard .gvis svg{width:100%;height:100%;filter:drop-shadow(0 0 10px rgba(95,214,232,0.25));}
+  .gcard .gmeta{padding:16px 18px 20px;}
+  .gcard .gmeta .glabel{font-family:var(--mono);font-size:0.65rem;color:var(--cyan);letter-spacing:0.1em;text-transform:uppercase;}
+  .gcard .gmeta h4{font-family:var(--display);font-weight:600;font-size:0.98rem;margin-top:6px;}
+  .gcard .gmeta p{color:var(--text-dim);font-size:0.8rem;margin-top:4px;}
+  .gallery-note{
+    margin-top:22px;font-family:var(--mono);font-size:0.72rem;color:var(--text-dim);
+    display:flex;gap:8px;align-items:center;
+  }
+  .gallery-note::before{content:'i';width:16px;height:16px;border:1px solid var(--text-dim);border-radius:50%;font-size:0.62rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+  /* contact */
+  .contact{padding:80px 0 40px;}
+  .contact-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;}
+  .contact-list{
+    border-top:1px solid var(--line);
+  }
+  .contact-row{
+    display:flex;gap:18px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--line);
+  }
+  .contact-row svg{color:var(--cyan);flex-shrink:0;margin-top:3px;}
+  .contact-row .clabel{font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;}
+  .contact-row .cval{font-family:var(--display);font-size:1.05rem;font-weight:500;}
+  .contact-row .cval span{display:block;font-family:var(--body);font-size:0.84rem;color:var(--text-dim);font-weight:400;margin-top:2px;}
+
+  .cta-card{
+    background:linear-gradient(160deg,var(--bg-panel-2),var(--bg-panel));
+    border:1px solid var(--line-strong);border-radius:14px;padding:32px 28px;
+    display:flex;flex-direction:column;gap:18px;height:fit-content;
+  }
+  .cta-card h3{font-family:var(--display);font-size:1.3rem;font-weight:600;}
+  .cta-card p{color:var(--text-dim);font-size:0.88rem;}
+  .cta-card .btn{width:100%;justify-content:center;}
+  .social-row{display:flex;gap:12px;margin-top:6px;flex-wrap:wrap;}
+  .social-btn{
+    width:42px;height:42px;border-radius:50%;border:1px solid var(--line-strong);
+    display:flex;align-items:center;justify-content:center;color:var(--text);
+    transition:all .2s;
+  }
+  .social-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-soft);}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:50px 0 30px;margin-top:40px;}
+  .footer-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:30px;padding-bottom:34px;border-bottom:1px solid var(--line);}
+  .footer-links{display:flex;gap:40px;flex-wrap:wrap;}
+  .footer-links h4{font-family:var(--mono);font-size:0.7rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+  .footer-links a{display:block;font-size:0.86rem;color:var(--text);margin-bottom:8px;}
+  .footer-links a:hover{color:var(--cyan);}
+  .footer-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:22px;font-family:var(--mono);font-size:0.7rem;color:var(--text-dim);}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none;}
+    html{scroll-behavior:auto;}
+  }
+
+  @media (max-width:900px){
+    .service-grid{grid-template-columns:repeat(2,1fr);}
+    .gallery-grid{grid-template-columns:repeat(2,1fr);}
+    .trust-grid{grid-template-columns:1fr;gap:24px;}
+    .contact-grid{grid-template-columns:1fr;}
+    nav.links{display:none;}
+    .menu-toggle{display:block;}
+  }
+  @media (max-width:560px){
+    .service-grid{grid-template-columns:1fr;}
+    .gallery-grid{grid-template-columns:1fr;}
+    .hero{padding-top:120px;}
+    .hero-caption{align-items:flex-start;}
+    .nav-cta .btn-ghost{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        STUDIO ORAL 3D
+        <small>IMÁGENES DIAGNÓSTICAS</small>
+      </div>
+    </div>
+    <nav class="links">
+      <a href="#servicios">Servicios</a>
+      <a href="#galeria">Galería</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="tel:+573123921533" class="btn btn-ghost">📞 312 392 1533</a>
+      <a href="https://wa.link/saqgkp" class="btn btn-primary" target="_blank" rel="noopener">Agendar por WhatsApp</a>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Radiología oral &amp; maxilofacial</div>
+
+      <div class="lightbox-panel">
+        <div class="strip-top filmstrip" id="stripTop"></div>
+
+        <div class="lightbox-inner">
+          <span class="tag-corner tag-tl">N° ESTUDIO<br>2026-01158</span>
+          <span class="tag-corner tag-tr">OPG · 15×30 cm<br>70 kV / 8 mA</span>
+          <span class="side-marker marker-l">I</span>
+          <span class="side-marker marker-r">D</span>
+          <svg id="archSvg" viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+
+        <div class="hero-caption">
+          <div>
+            <h1>Imágenes diagnósticas orales con la <em>precisión</em> que su tratamiento necesita.</h1>
+            <p>Radiografía panorámica, tomografía Cone Beam 3D y estudios especializados, con resultados disponibles 24/7 desde nuestra plataforma. Aliados de odontólogos y especialistas en Bogotá.</p>
+            <div class="hero-actions">
+              <a href="https://wa.link/saqgkp" class="btn btn-primary" target="_blank" rel="noopener">Agendar cita</a>
+              <a href="#servicios" class="btn btn-ghost">Ver servicios ↓</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="strip-bottom filmstrip" id="stripBottom"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST -->
+  <section class="trust">
+    <div class="wrap">
+      <div class="trust-grid">
+        <div class="trust-item reveal">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+          <div>
+            <h3>+4 años de experiencia</h3>
+            <p>Trabajando de la mano con odontólogos y especialistas de la salud oral en Bogotá.</p>
+          </div>
+        </div>
+        <div class="trust-item reveal">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>
+          <div>
+            <h3>Tecnología Cone Beam (CBCT)</h3>
+            <p>Equipos de última generación para radiografías digitales y tomografía 3D de alta resolución.</p>
+          </div>
+        </div>
+        <div class="trust-item reveal">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
+          <div>
+            <h3>Resultados disponibles 24/7</h3>
+            <p>Consulte sus estudios en línea, listos para compartir con su especialista.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section id="servicios" class="services">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Lista de servicios</div>
+        <h2>Estudios de radiología oral y maxilofacial</h2>
+        <p>Cada estudio se realiza con equipos calibrados y es interpretado por personal certificado en imagenología dental.</p>
+      </div>
+
+      <div class="service-grid">
+
+        <div class="service-card reveal">
+          <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><ellipse cx="12" cy="12" rx="8" ry="5"/><ellipse cx="12" cy="12" rx="4" ry="2.5"/></svg>
+          <div>
+            <h3>Tomografía Cone Beam 3D</h3>
+            <p>Reconstrucción volumétrica de alta precisión, ideal para implantes y cirugía guiada.</p>
+          </div>
+          <div class="service-code">RX-01 · CBCT 3D</div>
+        </div>
+
+        <div class="service-card reveal">
+          <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 15c2-8 4-11 8-11s6 3 8 11c-2 2-4-2-4 2 0 3-1.5 4-2.5 2-1 2-3.5 2-3.5-2 0-4-2 0-4-2z"/></svg>
+          <div>
+            <h3>Radiografía panorámica</h3>
+            <p>Vista completa de ambos maxilares, dientes y estructuras óseas en una sola toma.</p>
+          </div>
+          <div class="service-code">RX-02 · PANORÁMICA</div>
+        </div>
+
+        <div class="service-card reveal">
+          <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3c-2 0-3 2-3 4 0 3 1 4 1 7 0 2 1 4 2 4s2-2 2-4c0-3 1-4 1-7 0-2-1-4-3-4z"/></svg>
+          <div>
+            <h3>Radiografía periapical</h3>
+            <p>Detalle de un diente y su raíz, ideal para endodoncias y diagnóstico puntual.</p>
+          </div>
+          <div class="service-code">RX-03 · PERIAPICAL</div>
+        </div>
+
+        <div class="service-card reveal">
+          <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M8 6v12M16 6v12"/></svg>
+          <div>
+            <h3>Paquete de ortodoncia</h3>
+            <p>Conjunto de estudios diseñado para el diagnóstico y seguimiento de tratamientos de ortodoncia.</p>
+          </div>
+          <div class="service-code">RX-04 · PAQUETE ORTODONCIA</div>
+        </div>
+
+        <div class="service-card reveal">
+          <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+          <div>
+            <h3>Radiografía de ATM</h3>
+            <p>Evaluación de la articulación temporomandibular en distintas posiciones de apertura.</p>
+          </div>
+          <div class="service-code">RX-05 · ATM</div>
+        </div>
+
+        <div class="service-card reveal">
+          <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 10c0-3 2-6 6-6s6 3 6 6-1 4-1 6c0 2-1 3-2 3h-6c-1 0-2-1-2-3 0-2-1-3-1-6z"/></svg>
+          <div>
+            <h3>Radiografía de perfil</h3>
+            <p>Vista lateral craneofacial, base del análisis cefalométrico en ortodoncia.</p>
+          </div>
+          <div class="service-code">RX-06 · PERFIL</div>
+        </div>
+
+        <div class="service-card reveal">
+          <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="7"/><path d="M6 12h12M12 6v12"/></svg>
+          <div>
+            <h3>Radiografía de cráneo AP-PA</h3>
+            <p>Proyección frontal del cráneo para el análisis de simetría y estructuras óseas.</p>
+          </div>
+          <div class="service-code">RX-07 · CRÁNEO AP-PA</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERÍA -->
+  <section id="galeria" class="services" style="padding-top:20px;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Galería</div>
+        <h2>Ejemplos ilustrativos de cada estudio</h2>
+        <p>Representaciones esquemáticas para que conozca qué tipo de imagen obtendrá antes de agendar su cita.</p>
+      </div>
+
+      <div class="gallery-grid">
+        <div class="gcard reveal">
+          <div class="gvis"><svg id="gArch" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"></svg></div>
+          <div class="gmeta">
+            <div class="glabel">Ejemplo ilustrativo</div>
+            <h4>Panorámica</h4>
+            <p>Ambos maxilares en una sola imagen.</p>
+          </div>
+        </div>
+
+        <div class="gcard reveal">
+          <div class="gvis">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="100" cy="60" rx="26" ry="34" fill="none" stroke="#5FD6E8" stroke-width="2"/>
+              <path d="M85 90 Q100 160 100 175" fill="none" stroke="#5FD6E8" stroke-width="3" stroke-linecap="round"/>
+              <path d="M115 90 Q102 150 100 175" fill="none" stroke="#5FD6E8" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+            </svg>
+          </div>
+          <div class="gmeta">
+            <div class="glabel">Ejemplo ilustrativo</div>
+            <h4>Periapical</h4>
+            <p>Corona y raíz de una pieza dental.</p>
+          </div>
+        </div>
+
+        <div class="gcard reveal">
+          <div class="gvis">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <path d="M60 40 C40 60 40 140 60 160" fill="none" stroke="#5FD6E8" stroke-width="2"/>
+              <path d="M140 40 C160 60 160 140 140 160" fill="none" stroke="#5FD6E8" stroke-width="2"/>
+              <ellipse cx="100" cy="60" rx="14" ry="18" fill="none" stroke="#5FD6E8" stroke-width="1.6" opacity="0.85"/>
+              <path d="M60 90 Q100 60 140 90" fill="none" stroke="#5FD6E8" stroke-width="1.4" opacity="0.6"/>
+              <path d="M55 120 Q100 100 145 120" fill="none" stroke="#5FD6E8" stroke-width="1.4" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="gmeta">
+            <div class="glabel">Ejemplo ilustrativo</div>
+            <h4>Radiografía de perfil</h4>
+            <p>Vista lateral craneofacial para ortodoncia.</p>
+          </div>
+        </div>
+
+        <div class="gcard reveal">
+          <div class="gvis">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="35" y="70" width="130" height="14" rx="3" fill="none" stroke="#5FD6E8" stroke-width="1.6"/>
+              <rect x="45" y="90" width="110" height="14" rx="3" fill="none" stroke="#5FD6E8" stroke-width="1.6" opacity="0.8"/>
+              <rect x="55" y="110" width="90" height="14" rx="3" fill="none" stroke="#5FD6E8" stroke-width="1.6" opacity="0.6"/>
+              <rect x="65" y="130" width="70" height="14" rx="3" fill="none" stroke="#5FD6E8" stroke-width="1.6" opacity="0.4"/>
+            </svg>
+          </div>
+          <div class="gmeta">
+            <div class="glabel">Ejemplo ilustrativo</div>
+            <h4>Tomografía Cone Beam</h4>
+            <p>Cortes volumétricos en 3D.</p>
+          </div>
+        </div>
+
+        <div class="gcard reveal">
+          <div class="gvis">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="40" y="50" width="55" height="70" rx="3" fill="none" stroke="#5FD6E8" stroke-width="2"/>
+              <rect x="105" y="50" width="55" height="70" rx="3" fill="none" stroke="#5FD6E8" stroke-width="2"/>
+              <line x1="55" y1="65" x2="80" y2="65" stroke="#5FD6E8" stroke-width="1.4" opacity="0.6"/>
+              <line x1="55" y1="80" x2="80" y2="80" stroke="#5FD6E8" stroke-width="1.4" opacity="0.6"/>
+              <line x1="120" y1="65" x2="145" y2="65" stroke="#5FD6E8" stroke-width="1.4" opacity="0.6"/>
+              <line x1="120" y1="80" x2="145" y2="80" stroke="#5FD6E8" stroke-width="1.4" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="gmeta">
+            <div class="glabel">Ejemplo ilustrativo</div>
+            <h4>Radiografía de ATM</h4>
+            <p>Articulación temporomandibular en apertura y cierre.</p>
+          </div>
+        </div>
+
+        <div class="gcard reveal">
+          <div class="gvis">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="100" cy="100" rx="70" ry="45" fill="none" stroke="#5FD6E8" stroke-width="2"/>
+              <ellipse cx="100" cy="100" rx="45" ry="26" fill="none" stroke="#5FD6E8" stroke-width="1.4" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="gmeta">
+            <div class="glabel">Ejemplo ilustrativo</div>
+            <h4>Cráneo AP-PA</h4>
+            <p>Proyección frontal del cráneo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-note reveal">Las imágenes de esta sección son representaciones esquemáticas con fines ilustrativos, no corresponden a estudios reales de pacientes.</div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto" class="contact">
+    <div class="wrap">
+      <div class="section-head reveal" style="padding-top:0;">
+        <div class="eyebrow">Contacto</div>
+        <h2>Agende su estudio hoy mismo</h2>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-list reveal">
+
+          <div class="contact-row">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>
+            <div>
+              <div class="clabel">Llámanos</div>
+              <div class="cval">+57 312 392 1533</div>
+            </div>
+          </div>
+
+          <div class="contact-row">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5a2 2 0 012-2h3l2 5-2 1a11 11 0 005 5l1-2 5 2v3a2 2 0 01-2 2A16 16 0 013 5z"/></svg>
+            <div>
+              <div class="clabel">WhatsApp</div>
+              <div class="cval">Escríbenos <span>Respuesta rápida para agendar tu estudio</span></div>
+            </div>
+          </div>
+
+          <div class="contact-row">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6l8 6 8-6"/><rect x="4" y="5" width="16" height="14" rx="2"/></svg>
+            <div>
+              <div class="clabel">Correo</div>
+              <div class="cval">studiooral3d@gmail.com</div>
+            </div>
+          </div>
+
+          <div class="contact-row">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-6.5-7-11a7 7 0 0114 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <div>
+              <div class="clabel">Sede</div>
+              <div class="cval">Av. Ciudad de Cali # 137-41 <span>Local 3, Edificio IKARA, Bogotá</span></div>
+            </div>
+          </div>
+
+          <div class="contact-row">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <div>
+              <div class="clabel">Horario</div>
+              <div class="cval">Lun - Vie: 8:00 a.m. – 7:00 p.m. <span>Sábado: 8:00 a.m. – 4:00 p.m.</span></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="cta-card reveal">
+          <h3>Agenda tu cita</h3>
+          <p>Escríbenos por WhatsApp con la orden de tu odontólogo o llama directamente a la clínica. Confirmamos disponibilidad el mismo día.</p>
+          <a href="https://wa.link/saqgkp" class="btn btn-primary" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+          <a href="tel:+573123921533" class="btn btn-ghost">Llamar ahora</a>
+
+          <div>
+            <div class="clabel" style="font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Síguenos</div>
+            <div class="social-row">
+              <a class="social-btn" href="#" aria-label="Instagram" target="_blank" rel="noopener">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+              </a>
+              <a class="social-btn" href="#" aria-label="Facebook" target="_blank" rel="noopener">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 8h2V4h-2a4 4 0 00-4 4v2H9v4h2v6h4v-6h2.5l.5-4H15V8z"/></svg>
+              </a>
+              <a class="social-btn" href="https://wa.link/saqgkp" aria-label="WhatsApp" target="_blank" rel="noopener">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21l1.5-4.5A8 8 0 1112 20a8 8 0 01-4.5-1.4L3 21z"/></svg>
+              </a>
+              <a class="social-btn" href="#" aria-label="TikTok" target="_blank" rel="noopener">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 4v10.5a3 3 0 11-3-3M14 4a5 5 0 005 5"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <div class="brand" style="margin-bottom:10px;">
+          <span class="dot"></span>
+          <div>STUDIO ORAL 3D<small>IMÁGENES DIAGNÓSTICAS</small></div>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;max-width:280px;">Centro especializado en radiología oral y maxilofacial en Bogotá.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <h4>Navegación</h4>
+          <a href="#servicios">Servicios</a>
+          <a href="#galeria">Galería</a>
+          <a href="#contacto">Contacto</a>
+        </div>
+        <div>
+          <h4>Contacto directo</h4>
+          <a href="tel:+573123921533">312 392 1533</a>
+          <a href="https://wa.link/saqgkp" target="_blank" rel="noopener">WhatsApp</a>
+          <a href="mailto:studiooral3d@gmail.com">studiooral3d@gmail.com</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Studio Oral 3D. Todos los derechos reservados.</span>
+      <span>Las imágenes de este sitio son ilustrativas, no corresponden a estudios de pacientes reales.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sprocket strips
+  function fillStrip(id){
+    const el = document.getElementById(id);
+    const count = Math.floor(window.innerWidth / 26);
+    el.innerHTML = '';
+    for(let i=0;i<count;i++){ const s=document.createElement('span'); el.appendChild(s); }
+  }
+  fillStrip('stripTop'); fillStrip('stripBottom');
+  window.addEventListener('resize', ()=>{ fillStrip('stripTop'); fillStrip('stripBottom'); });
+
+  // procedural panoramic arch illustration
+  function buildArch(svgId, w, h, toothCount){
+    const svg = document.getElementById(svgId);
+    const ns = 'http://www.w3.org/2000/svg';
+    const cx = w/2, cy = h*0.15;
+    const rx = w*0.42, ry = h*0.95;
+
+    // jaw outline (two nested arcs)
+    function arcPath(rxo, ryo){
+      let d = '';
+      const steps = 60;
+      for(let i=0;i<=steps;i++){
+        const t = Math.PI*0.06 + (Math.PI*0.88)*(i/steps);
+        const x = cx + rxo*Math.cos(t);
+        const y = cy + ryo*Math.sin(t);
+        d += (i===0?'M':'L') + x.toFixed(1) + ' ' + y.toFixed(1) + ' ';
+      }
+      return d;
+    }
+    const outer = document.createElementNS(ns,'path');
+    outer.setAttribute('d', arcPath(rx, ry));
+    outer.setAttribute('fill','none');
+    outer.setAttribute('stroke','#5FD6E8');
+    outer.setAttribute('stroke-width','2');
+    outer.setAttribute('opacity','0.55');
+    svg.appendChild(outer);
+
+    const inner = document.createElementNS(ns,'path');
+    inner.setAttribute('d', arcPath(rx*0.72, ry*0.72));
+    inner.setAttribute('fill','none');
+    inner.setAttribute('stroke','#5FD6E8');
+    inner.setAttribute('stroke-width','2');
+    inner.setAttribute('opacity','0.4');
+    svg.appendChild(inner);
+
+    // teeth as small capsules tangent to the arc
+    for(let i=0;i<toothCount;i++){
+      const t = Math.PI*0.08 + (Math.PI*0.84)*(i/(toothCount-1));
+      const rMid = (rx+rx*0.72)/2, ryMid=(ry+ry*0.72)/2;
+      const x = cx + rMid*Math.cos(t);
+      const y = cy + ryMid*Math.sin(t);
+      const angleDeg = (t*180/Math.PI) - 90;
+      const tooth = document.createElementNS(ns,'rect');
+      const tw = w*0.018, th = h*0.16;
+      tooth.setAttribute('x', (x - tw/2).toFixed(1));
+      tooth.setAttribute('y', (y - th/2).toFixed(1));
+      tooth.setAttribute('width', tw.toFixed(1));
+      tooth.setAttribute('height', th.toFixed(1));
+      tooth.setAttribute('rx', (tw/2.2).toFixed(1));
+      tooth.setAttribute('fill','#EAF5FC');
+      tooth.setAttribute('opacity', (0.55 + 0.35*Math.sin(t)).toFixed(2));
+      tooth.setAttribute('transform', `rotate(${angleDeg} ${x.toFixed(1)} ${y.toFixed(1)})`);
+      svg.appendChild(tooth);
+    }
+
+    // condyles (jaw joints) at both ends
+    [0.06, 0.94].forEach(f=>{
+      const t = Math.PI*f;
+      const x = cx + rx*0.86*Math.cos(t);
+      const y = cy + ry*0.86*Math.sin(t);
+      const c = document.createElementNS(ns,'circle');
+      c.setAttribute('cx', x.toFixed(1)); c.setAttribute('cy', y.toFixed(1));
+      c.setAttribute('r', (w*0.028).toFixed(1));
+      c.setAttribute('fill','none'); c.setAttribute('stroke','#5FD6E8');
+      c.setAttribute('stroke-width','2'); c.setAttribute('opacity','0.6');
+      svg.appendChild(c);
+    });
+  }
+  buildArch('archSvg', 800, 300, 28);
+  buildArch('gArch', 400, 180, 22);
+
+  // reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // mobile menu (simple toggle -> scrolls to contact as fallback nav)
+  document.getElementById('menuToggle').addEventListener('click', ()=>{
+    document.querySelector('#servicios').scrollIntoView({behavior:'smooth'});
+  });
+</script>
+
+</body>
+</html>
